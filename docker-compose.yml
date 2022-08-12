@@ -1,0 +1,57 @@
+version: '3'
+services:
+  db:
+    image: 'postgres:latest'
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: wordcloud
+      POSTGRES_PASSWORD: wordcloud
+      POSTGRES_DB: wordcloud
+  core:
+    build: core/
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    environment:
+      - spring.datasource.url=jdbc:postgresql://db:5432/wordcloud?currentSchema=migrations
+      - spring.datasource.username=wordcloud
+      - spring.datasource.password=wordcloud
+      - spring.flyway.url=jdbc:postgresql://db:5432/wordcloud
+      - spring.flyway.user=wordcloud
+      - spring.flyway.password=wordcloud
+      - spring.rabbitmq.host=rabbitmq
+      - spring.rabbitmq.port=5672
+      - spring.rabbitmq.username=guest
+      - spring.rabbitmq.password=guest
+  frontend:
+    build: frontend/
+    ports:
+      - 3000:3000
+  worker:
+    build: worker/
+    ports:
+      - 8090:8090
+    depends_on:
+      - db
+    environment:
+      - spring.datasource.url=jdbc:postgresql://db:5432/wordcloud?currentSchema=migrations
+      - spring.datasource.username=wordcloud
+      - spring.datasource.password=wordcloud
+      - spring.flyway.url=jdbc:postgresql://db:5432/wordcloud
+      - spring.flyway.user=wordcloud
+      - spring.flyway.password=wordcloud
+      - spring.rabbitmq.host=rabbitmq
+      - spring.rabbitmq.port=5672
+      - spring.rabbitmq.username=guest
+      - spring.rabbitmq.password=guest
+      - core.rabbitmq.exchange=core.exchange
+      - core.rabbitmq.queue=core.queue
+      - core.rabbitmq.routingkey=core.routingkey
+  rabbitmq:
+    image: 'rabbitmq:3-management'
+    ports:
+      - 5672:5672
+      - 15672:15672
+
