@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: wordcloud
       POSTGRES_DB: wordcloud
   core:
-    build: core/
+    build: wordcloud-core/
     ports:
       - 8080:8080
     depends_on:
@@ -26,11 +26,11 @@ services:
       - spring.rabbitmq.username=guest
       - spring.rabbitmq.password=guest
   frontend:
-    build: frontend/
+    build: wordcloud-frontend/
     ports:
       - 3000:3000
   worker:
-    build: worker/
+    build: wordcloud-worker/
     ports:
       - 8090:8090
     depends_on:
